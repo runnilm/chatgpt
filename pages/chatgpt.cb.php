@@ -21,20 +21,26 @@ class _View
 
     private function onAJAX()
     {
-        $message = isset($_REQUEST['message']) ? $_REQUEST['message'] : '';
+        if (!empty($_POST['action'])) {
+            switch ($_POST['action']) {
+                case 'sendMessage':
+                    if (!empty($_POST['message'])) {
+                        // Get the structured response from ChatGPT
+                        $response = $this->chatGPT->sendMessage($_POST['message'], $this->context);
 
-        if ($message) {
-            // Get the structured response from ChatGPT
-            $response = $this->chatGPT->sendMessage($message, $this->context);
+                        // Update session context after each interaction
+                        $_SESSION['chat_context'] = $this->context;
 
-            // Update session context after each interaction
-            $_SESSION['chat_context'] = $this->context;
-
-            // Echo only the user_message part of the structured response
-            echo $response;
-        } else {
-            echo 'Error: No message provided.';
+                        // Echo only the user_message part of the structured response
+                        echo json_encode(['success' => true, 'message' => $response]);
+                        exit;
+                    }
+                    break;
+            }
         }
+
+        echo json_encode(['success' => false]);
+        exit;
     }
 }
 

@@ -17,7 +17,7 @@
     <div class="container mt-5">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Chat with ChatGPT</h4>
+                <h4 class="mb-0">ChatGPT</h4>
             </div>
             <div class="card-body" id="chat-box">
                 <!-- Chat messages will appear here -->
@@ -52,10 +52,10 @@
                 if (userInput) {
                     // Display user's message
                     $("#chat-box").append(`
-                        <div class="message-wrapper chat-container">
-                            <div class="chat-bubble user-bubble">${userInput}</div>
-                        </div>
-                    `);
+                            <div class="message-wrapper chat-container">
+                                <div class="chat-bubble user-bubble">${userInput}</div>
+                            </div>
+                        `);
                     $("#user-input").val('');
                     $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
 
@@ -79,18 +79,24 @@
                         type: "POST",
                         data: {
                             ajax: true,
-                            message: userInput
+                            action: 'sendMessage',
+                            message: userInput,
                         },
-                        success: function(response) {
+                    }).done(function(response) {
+                        response = JSON.parse(response);
+                        if (response.success) {
                             // Replace the typing indicator with the response text using typing animation
                             typingBubble.find("#typing-indicator").remove();
-                            typeText(response, typingBubble.find(".chat-bubble"));
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("AJAX Error: " + status + error);
+                            typeText(response.message, typingBubble.find(".chat-bubble"));
+                        } else {
+                            console.error('Something went wrong.');
                             typingBubble.find("#typing-indicator").remove();
-                            typingBubble.find(".chat-bubble").text("Error: Unable to get response.");
+                            typingBubble.find(".chat-bubble").text("Sorry, something went wrong.");
                         }
+                    }).fail(function(xhr, status, error) {
+                        console.error("AJAX Error: " + status + error);
+                        typingBubble.find("#typing-indicator").remove();
+                        typingBubble.find(".chat-bubble").text("Error: Unable to get response.");
                     });
                 }
             }
