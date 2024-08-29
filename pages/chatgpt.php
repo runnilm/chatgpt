@@ -92,26 +92,26 @@
                             messages: JSON.stringify(messages) // Send the full context as a JSON string
                         },
                     }).done(function(response) {
-                        response = JSON.parse(response);
-                        if (response.success) {
-                            // Replace the typing indicator with the response text using typing animation
-                            typingBubble.find("#typing-indicator").remove();
-                            typeText(response.message, typingBubble.find(".chat-bubble"));
+                        try {
+                            response = JSON.parse(response);
+                            if (response.success) {
+                                // Replace the typing indicator with the response text using typing animation
+                                typingBubble.find("#typing-indicator").remove();
+                                typeText(response.message, typingBubble.find(".chat-bubble"));
 
-                            // Update the messages array with the assistant's response
-                            messages.push({
-                                role: 'assistant',
-                                content: response.message
-                            });
-                        } else {
-                            console.error('Something went wrong.');
-                            typingBubble.find("#typing-indicator").remove();
-                            typingBubble.find(".chat-bubble").text("Sorry, something went wrong.");
+                                // Update the messages array with the assistant's response
+                                messages.push({
+                                    role: 'assistant',
+                                    content: response.message
+                                });
+                            } else {
+                                handleError('Received failure response from server.');
+                            }
+                        } catch (e) {
+                            handleError('Failed to parse server response.');
                         }
                     }).fail(function(xhr, status, error) {
-                        console.error("AJAX Error: " + status + error);
-                        typingBubble.find("#typing-indicator").remove();
-                        typingBubble.find(".chat-bubble").text("Error: Unable to get response.");
+                        handleError("AJAX Error: " + status + " " + error);
                     });
                 }
             }
@@ -131,6 +131,18 @@
                 }
 
                 typeWriter();
+            }
+
+            function handleError(errorMessage) {
+                console.error(errorMessage);
+                const errorBubble = $(`
+                    <div class="message-wrapper chat-container">
+                        <div class="chat-bubble bot-bubble">Sorry, something went wrong.</div>
+                    </div>
+                `);
+                $("#chat-box").append(errorBubble);
+                $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+                $("#typing-indicator").remove();
             }
         });
     </script>

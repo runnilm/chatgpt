@@ -15,6 +15,11 @@ class _View
         // Initialize messages from POST data, ensuring it is an array
         $this->messages = isset($_POST['messages']) ? json_decode($_POST['messages'], true) : [];
 
+        // Validate if messages are decoded properly
+        if (!is_array($this->messages)) {
+            $this->messages = [];
+        }
+
         if (isset($_REQUEST['ajax']) && $_REQUEST['ajax'] == true) {
             $this->onAJAX();
         }
@@ -35,26 +40,23 @@ class _View
                         $userMessage = ['role' => 'user', 'content' => $_POST['message']];
                         $this->messages[] = $userMessage;
 
-                        // Get the response from ChatGPT
-                        $response = $this->chatGPT->chat($this->messages);
+                        // Get the response from ChatGPT, which is now always a string
+                        $responseMessage = $this->chatGPT->chat($this->messages);
 
-                        if ($response) {
-                            // Append the assistant's response to the context
-                            $assistantMessage = [
-                                'role' => 'assistant',
-                                'content' => $response['choices'][0]['message']['content']
-                            ];
-                            $this->messages[] = $assistantMessage;
-                            error_log(json_encode($this->messages, JSON_PRETTY_PRINT));
+                        // Append the assistant's response to the context
+                        $assistantMessage = [
+                            'role' => 'assistant',
+                            'content' => $responseMessage
+                        ];
+                        $this->messages[] = $assistantMessage;
 
-                            // Send the response back along with the updated context
-                            echo json_encode([
-                                'success' => true,
-                                'message' => $assistantMessage['content'],
-                                'messages' => $this->messages // Updated context
-                            ]);
-                            exit;
-                        }
+                        // Send the response back along with the updated context
+                        echo json_encode([
+                            'success' => true,
+                            'message' => $responseMessage,
+                            'messages' => $this->messages // Updated context
+                        ]);
+                        exit;
                     }
                     break;
             }
