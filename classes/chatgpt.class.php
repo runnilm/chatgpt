@@ -81,7 +81,7 @@ class _ChatGPT extends _OpenAI
                 switch ($functionName) {
                     case 'getTime':
                         $currentTime = $this->getTime();
-                        $this->addMessage('system', "Current time is $currentTime.");
+                        $this->addMessage('system', "Current time is " . $currentTime . ".");
                         return $this->chat($this->messages, $options); // Recurse with updated context
                     case 'scheduleClass':
                         return $this->scheduleClass($functionArgs);
@@ -147,7 +147,7 @@ class _ChatGPT extends _OpenAI
         error_log($datetime . ' ' . $studentName . ' ' . $className);
         if (isset($datetime, $studentName, $className)) {
             // Logic to schedule the class goes here (e.g., save to database)
-            return "Class '$className' scheduled for $studentName on $datetime.";
+            return "Class '" . $className . "' scheduled for " . $studentName . " on " . $datetime . ".";
         }
 
         error_log('Invalid arguments for scheduleClass: ' . json_encode($args, JSON_PRETTY_PRINT));
@@ -159,7 +159,7 @@ class _ChatGPT extends _OpenAI
     {
         if ($timeframe) {
             // Logic to retrieve and list classes goes here (e.g., query from database)
-            return "Listing classes for the next $timeframe.";
+            return "Listing classes for the next " . $timeframe . ".";
         }
 
         error_log('Invalid timeframe for listClasses: ' . $timeframe);
@@ -171,7 +171,7 @@ class _ChatGPT extends _OpenAI
     {
         if ($content) {
             // Logic to send an email to support goes here (e.g., use mail() function)
-            return "Your message has been sent to support: $content";
+            return "Your message has been sent to support: " . $content;
         }
 
         error_log('Invalid content for emailSupport: ' . $content);
